@@ -1,6 +1,12 @@
 // Se importa el modelo de usuarios.
 import usersModel from '../models/users.js';
 
+// Se importan las funciones de hasheo
+import {
+      validatePassword,
+      createHash
+} from '../../utils.js'
+
 // Se importan las funciones de manejo de errores desde el helper.
 import {
       handleTryErrorDB,
@@ -85,14 +91,18 @@ export default class UsersManager {
 
                   if (existAdmin.role === "admin") {
 
+                        const admin = {
+                              ...existAdmin,
+                              password: await createHash(existAdmin.password)
+                        }
                         // Si el usuario es un administrador, se crea y guarda en la base de datos.
-                        const result = await usersModel.create(existAdmin);
+                        const result = await usersModel.create(admin);
 
                         // Se valida que el usuario administrador se haya guardado correctamente.
                         validateDataDB(!result, "No se pudo guardar el usuario en la base de datos");
 
                         // Se programa un tiempo para eliminar al usuario administrador después de 3 segundos.
-                        setTimeout(() => this.deleteAdmin(user.email), 3000);
+                        setTimeout(() => this.deleteAdmin(user.email), 10000);
 
                         return result;
 
@@ -104,8 +114,11 @@ export default class UsersManager {
                         // Se muestra un mensaje de error si el usuario no existe en la base de datos.
                         validateDataDB(!exist, "El usuario no existe");
 
+                        // Se verifica si la contraseña es correcta.
+                        const isValidPassword = await validatePassword(exist, user.password);
+
                         // Se muestra un mensaje de error si la contraseña es incorrecta.
-                        validateDataDB(exist.password !== user.password, "La contraseña es incorrecta");
+                        validateDataDB(!isValidPassword, "La contraseña es incorrecta");
 
                         return exist;
                   };

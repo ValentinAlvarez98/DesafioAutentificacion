@@ -2,6 +2,10 @@ import {
       Router
 } from 'express';
 
+import {
+      createHash
+} from '../utils.js';
+
 import UsersManager from '../dao/dbManagers/users.js';
 
 import {
@@ -14,6 +18,7 @@ import {
       cfgSession,
       isAdmin
 } from '../helpers/handleSessions.js';
+
 const usersManager = new UsersManager();
 
 const sessionsRouter = Router();
@@ -68,7 +73,7 @@ sessionsRouter.post('/register', async (req, res) => {
                   first_name,
                   last_name,
                   email,
-                  password,
+                  password: await createHash(password),
             };
 
             const result = await usersManager.registerUser(newUser);
@@ -133,11 +138,13 @@ sessionsRouter.post('/profile', async (req, res) => {
 
             const newPhone = phoneOptions(user.phone, phone);
 
+            const hashedPassword = await createHash(user.password);
+
             const userToUpdate = {
                   ...req.body,
                   phone: newPhone,
                   role: user.role,
-                  password: user.password,
+                  password: hashedPassword,
             };
 
             const result = await usersManager.updateUser(user.email, userToUpdate);
@@ -153,7 +160,6 @@ sessionsRouter.post('/profile', async (req, res) => {
             handleTryErrorDB(error);
 
       };
-
 
 });
 
