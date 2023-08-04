@@ -1,6 +1,7 @@
 import {
       Router
 } from 'express';
+import passport from 'passport';
 
 import {
       createHash
@@ -16,7 +17,8 @@ import {
 } from '../helpers/handleErrors.js';
 import {
       cfgSession,
-      isAdmin
+      cfgSessionGithub,
+      isAdmin,
 } from '../helpers/handleSessions.js';
 
 const usersManager = new UsersManager();
@@ -41,6 +43,45 @@ sessionsRouter.post('/login', async (req, res) => {
             validateData(!user, res, "Error en el usuario o contraseña");
 
             cfgSession(user, req, res);
+
+
+      } catch (error) {
+
+            handleTryErrorDB(error);
+
+      };
+
+});
+
+sessionsRouter.get('/github', passport.authenticate('github', {
+      scope: ['user:email']
+}), async (req, res) => {
+
+      try {
+
+            res.send({
+                  status: "success",
+                  payload: "Autenticación exitosa"
+            });
+
+
+      } catch (error) {
+
+            handleTryErrorDB(error);
+
+      };
+
+});
+
+sessionsRouter.get('/githubcallback', passport.authenticate('github', {
+      failureRedirect: '/login'
+}), async (req, res) => {
+
+      try {
+
+            const user = req.user;
+
+            cfgSessionGithub(user, req, res);
 
 
       } catch (error) {
@@ -162,5 +203,7 @@ sessionsRouter.post('/profile', async (req, res) => {
       };
 
 });
+
+
 
 export default sessionsRouter;

@@ -10,7 +10,9 @@ import {
 import {
       checkSession,
       ifSession,
-      isAdmin
+      isAdmin,
+      checkGithubSession,
+      validateEmail
 } from '../helpers/handleSessions.js';
 import Products from "../dao/dbManagers/products.js";
 import Carts from "../dao/dbManagers/carts.js";
@@ -29,7 +31,7 @@ const productsFsManager = new ProductsFs();
 const router = Router();
 
 // Ruta para mostrar el chatBox.
-router.get('/chat', checkSession, async (req, res) => {
+router.get('/chat', checkSession, checkGithubSession, async (req, res) => {
 
       try {
 
@@ -46,7 +48,7 @@ router.get('/chat', checkSession, async (req, res) => {
 });
 
 // Ruta para mostrar los productos en tiempo real.
-router.get('/realtimeproducts', checkSession, async (req, res) => {
+router.get('/realtimeproducts', checkSession, checkGithubSession, async (req, res) => {
 
       try {
 
@@ -75,7 +77,7 @@ router.get('/realtimeproducts', checkSession, async (req, res) => {
 });
 
 // Ruta para obtener todos los productos o una cantidad limitada de productos.
-router.get('/products', checkSession, async (req, res) => {
+router.get('/products', checkSession, checkGithubSession, async (req, res) => {
 
       try {
 
@@ -132,7 +134,7 @@ router.get('/products', checkSession, async (req, res) => {
 });
 
 // Ruta para obtener un producto por su id.
-router.get('/products/:id', checkSession, async (req, res) => {
+router.get('/products/:id', checkSession, checkGithubSession, async (req, res) => {
 
       try {
 
@@ -160,7 +162,7 @@ router.get('/products/:id', checkSession, async (req, res) => {
 });
 
 // Ruta para obtener un carrito por su id.
-router.get('/carts/:cartId', checkSession, async (req, res) => {
+router.get('/carts/:cartId', checkSession, checkGithubSession, async (req, res) => {
 
       try {
 
@@ -225,6 +227,7 @@ router.get('/profile', checkSession, async (req, res) => {
                   userEmail: user.email,
                   userRole: userData.role,
                   userPhone: user.phone ? user.phone : "Teléfono",
+                  invalidEmail: validateEmail(user.email)
             });
 
       } catch (error) {

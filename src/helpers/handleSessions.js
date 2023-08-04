@@ -31,6 +31,31 @@ export function checkSession(req, res, next) {
 
 };
 
+export function validateEmail(email) {
+
+      if (/^\w+([\.-]?\w+)*@(?:|hotmail|outlook|gmail)\.(?:|com|es)+$/i.test(email) === false) {
+            return true;
+      } else {
+            return false;
+      };
+}
+
+export function checkGithubSession(req, res, next) {
+
+      const email = req.cookies.userData.email;
+
+      if (validateEmail(email)) {
+
+            res.redirect('/profile');
+
+      } else {
+
+            next();
+
+      };
+
+};
+
 export function cfgSession(user, req, res) {
 
       if (user) {
@@ -54,20 +79,20 @@ export function cfgSession(user, req, res) {
                   res.cookie('userData', {
                         id: user._id,
                         first_name: user.first_name,
-                        role: user.role
+                        role: user.role,
+                        email: user.email
                   }, {
                         maxAge: 900000
                   })
 
             };
-
             res.send({
                   status: "success",
                   payload: `El usuario ${user.first_name} ${user.last_name} se ha logueado correctamente`
             });
 
-      } else {
 
+      } else {
             res.status(401).send({
                   status: "error",
                   payload: `Error en el usuario o contraseña`
@@ -76,6 +101,33 @@ export function cfgSession(user, req, res) {
       };
 
 };
+
+export function cfgSessionGithub(user, req, res) {
+
+      if (user) {
+
+            req.session.userLogged = true;
+
+            req.session.user = user._id;
+
+            res.cookie('userData', {
+                  id: user._id,
+                  first_name: user.first_name,
+                  role: user.role,
+                  email: user.email
+            })
+
+            res.redirect('/profile');
+
+
+      } else {
+
+            res.redirect('/login');
+
+      };
+
+};
+
 
 export function ifSession(req, res, next) {
 

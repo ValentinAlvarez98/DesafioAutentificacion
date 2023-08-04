@@ -7,6 +7,8 @@ import {
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import passport from 'passport';
+import initPassport from './config/passport.config.js';
 
 import productsRouter from './routes/products.routes.js';
 import cartsRouter from './routes/carts.routes.js';
@@ -48,6 +50,10 @@ app.use(session({
       saveUninitialized: false,
 }))
 
+
+initPassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.json());
 app.use(express.urlencoded({

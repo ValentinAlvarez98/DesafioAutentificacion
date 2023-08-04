@@ -36,6 +36,10 @@
                                                 <input type="email" class="form-control form-control-lg rounded-0"
                                                        placeholder="{{userEmail}} (*)" maxlength="60"
                                                       name="email" required>
+                                                      {{#if invalidEmail}}
+                                                      <p class="text-danger">Ingrese un email válido para continuar</p>
+                                                      {{/if}}
+
                                           </div>
                                           <div class="col-6">
                                                 <input type="number" class="form-control form-control-lg rounded-0"
